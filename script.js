@@ -1,59 +1,205 @@
+// Dữ liệu các trường đại học
 const universityData = {
     'khu1': [{name: 'Đại học Bách Khoa HN'}, {name: 'Đại học Kinh Tế Quốc Dân'}, {name: 'Đại học Xây Dựng'}],
     'khu2': [{name: 'Đại học Quốc Gia HN'}, {name: 'Đại học Sư Phạm HN'}, {name: 'Học viện Báo Chí'}],
     'khu3': [{name: 'Đại học Kiến Trúc HN'}, {name: 'Học viện Bưu Chính'}, {name: 'Học viện An Ninh'}],
     'khu4': [{name: 'Đại học Ngoại Thương'}, {name: 'Học viện Ngoại Giao'}, {name: 'Đại học Luật HN'}]
 };
-const areaNames = { 'khu1': 'Khu 1: Bách - Kinh - Xây', 'khu2': 'Khu 2: Cầu Giấy', 'khu3': 'Khu 3: Hà Đông', 'khu4': 'Khu 4: Chùa Láng' };
+
+function getAreaName(key) {
+    if(key === 'khu1') return 'Khu 1 (Bách-Kinh-Xây)';
+    if(key === 'khu2') return 'Khu 2 (Cầu Giấy)';
+    if(key === 'khu3') return 'Khu 3 (Hà Đông)';
+    if(key === 'khu4') return 'Khu 4 (Chùa Láng)';
+    return key;
+}
 
 const qualityDB = {
-    'Quán Ăn Vặt Bách Kinh Xây': {
-        score: 95, grade: 'A', color: '#27ae60',
-        certs: ['VSATTP', 'ISO 22000'],
-        criteria: { 'Vệ sinh bếp': 98, 'Nguồn gốc': 95, 'Quy trình': 92, 'Bảo quản': 96, 'Nhân viên': 94 },
-        history: [{date: '01/11/2025', score: 95, who: 'ComSV Team'}, {date: '15/10/2025', score: 93, who: 'Sở Y Tế'}]
-    },
-    'Quán Ăn Cầu Giấy': {
-        score: 88, grade: 'B', color: '#2980b9',
-        certs: ['VSATTP'],
-        criteria: { 'Vệ sinh bếp': 85, 'Nguồn gốc': 90, 'Quy trình': 88, 'Bảo quản': 85, 'Nhân viên': 90 },
-        history: [{date: '02/11/2025', score: 88, who: 'ComSV Team'}]
-    },
-    'Quán Cơm Hà Đông': {
-        score: 92, grade: 'A', color: '#27ae60',
-        certs: ['VSATTP', 'Bếp Sạch'],
-        criteria: { 'Vệ sinh bếp': 90, 'Nguồn gốc': 95, 'Quy trình': 93, 'Bảo quản': 90, 'Nhân viên': 92 },
-        history: [{date: '03/11/2025', score: 92, who: 'ComSV Team'}]
-    },
-    'Quán Ngon Chùa Láng': {
-        score: 97, grade: 'A', color: '#27ae60',
-        certs: ['VSATTP', 'ISO', 'HACCP'],
-        criteria: { 'Vệ sinh bếp': 99, 'Nguồn gốc': 98, 'Quy trình': 96, 'Bảo quản': 97, 'Nhân viên': 95 },
-        history: [{date: '05/11/2025', score: 97, who: 'Thanh Tra'}]
-    }
+    'Quán Ăn Vặt Bách Kinh Xây': { score: 95, grade: 'A', color: '#27ae60', certs: ['VSATTP', 'ISO 22000'], criteria: { 'Vệ sinh bếp': 98, 'Nguồn gốc': 95, 'Quy trình': 92, 'Bảo quản': 96, 'Nhân viên': 94 }, history: [{date: '01/11/2025', score: 95, who: 'ComSV Team'}] },
+    'Quán Ăn Cầu Giấy': { score: 88, grade: 'B', color: '#2980b9', certs: ['VSATTP'], criteria: { 'Vệ sinh bếp': 85, 'Nguồn gốc': 90, 'Quy trình': 88, 'Bảo quản': 85, 'Nhân viên': 90 }, history: [{date: '02/11/2025', score: 88, who: 'ComSV Team'}] },
+    'Quán Cơm Hà Đông': { score: 92, grade: 'A', color: '#27ae60', certs: ['VSATTP', 'Bếp Sạch'], criteria: { 'Vệ sinh bếp': 90, 'Nguồn gốc': 95, 'Quy trình': 93, 'Bảo quản': 90, 'Nhân viên': 92 }, history: [{date: '03/11/2025', score: 92, who: 'ComSV Team'}] },
+    'Quán Ngon Chùa Láng': { score: 97, grade: 'A', color: '#27ae60', certs: ['VSATTP', 'ISO', 'HACCP'], criteria: { 'Vệ sinh bếp': 99, 'Nguồn gốc': 98, 'Quy trình': 96, 'Bảo quản': 97, 'Nhân viên': 95 }, history: [{date: '05/11/2025', score: 97, who: 'Thanh Tra'}] }
 };
 
+// --- LOGIC GIỎ HÀNG (CẬP NHẬT SỐ LƯỢNG) ---
+let cart = [];
+
+function addToCart(mealName, price, areaKey) {
+    // 1. Kiểm tra logic Single Area
+    if (cart.length > 0 && cart[0].area !== areaKey) {
+        let confirmSwitch = confirm(`Giỏ hàng đang có món của ${getAreaName(cart[0].area)}.\nBạn chỉ được đặt món cùng 1 khu vực.\n\nXóa giỏ hàng cũ để đặt món mới?`);
+        if (confirmSwitch) {
+            cart = []; 
+        } else {
+            return; 
+        }
+    }
+
+    // 2. Logic thêm vào giỏ: Nếu có rồi thì tăng số lượng
+    const existingItem = cart.find(item => item.name === mealName);
+    if (existingItem) {
+        existingItem.quantity++;
+    } else {
+        cart.push({ name: mealName, price: price, area: areaKey, quantity: 1 });
+    }
+    
+    updateCartCountUI();
+    
+    // Hiệu ứng nút bấm
+    const btn = event.target;
+    const originalText = btn.innerText;
+    btn.innerText = "✅ Đã thêm";
+    btn.style.background = "#2ecc71";
+    setTimeout(() => {
+        btn.innerText = originalText;
+        btn.style.background = "#27ae60";
+    }, 1000);
+}
+
+function updateCartCountUI() {
+    // Đếm tổng số lượng item
+    const totalCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+    document.getElementById('cartCount').innerText = `(${totalCount})`;
+}
+
+// Hàm thay đổi số lượng trong giỏ hàng
+function changeQuantity(index, delta) {
+    cart[index].quantity += delta;
+    
+    // Nếu giảm về 0 thì xóa luôn
+    if (cart[index].quantity <= 0) {
+        removeFromCart(index);
+    } else {
+        updateCartCountUI();
+        openCartPage(); // Re-render lại để cập nhật giá
+    }
+}
+
+function removeFromCart(index) {
+    cart.splice(index, 1);
+    updateCartCountUI();
+    openCartPage(); 
+}
+
+// --- LOGIC TRANG CHECKOUT (HIỂN THỊ NÚT SỐ LƯỢNG) ---
+function openCartPage() {
+    navigateTo('order');
+    const container = document.getElementById('cartListContainer');
+    const totalEl = document.getElementById('cartTotal');
+    const areaSelect = document.getElementById('areaSelect');
+    
+    container.innerHTML = '';
+    
+    if (cart.length === 0) {
+        container.innerHTML = '<div style="text-align:center; padding:2rem;">Giỏ hàng trống 😢 <br> <a href="#" onclick="navigateTo(\'menu\')" style="color:#27ae60; font-weight:bold;">Quay lại chọn món ngay</a></div>';
+        totalEl.innerText = '0đ';
+        areaSelect.value = "";
+        loadUniversities(); 
+    } else {
+        let total = 0;
+        cart.forEach((item, index) => {
+            total += item.price * item.quantity; // Tính tổng theo số lượng
+            container.innerHTML += `
+                <div class="cart-item">
+                    <div class="cart-item-info">
+                        <strong>${item.name}</strong>
+                        <small>${item.price.toLocaleString()}đ</small>
+                    </div>
+                    
+                    <div class="quantity-controls">
+                        <button class="btn-qty" onclick="changeQuantity(${index}, -1)">-</button>
+                        <span class="qty-val">${item.quantity}</span>
+                        <button class="btn-qty" onclick="changeQuantity(${index}, 1)">+</button>
+                    </div>
+
+                    <div class="cart-item-remove" onclick="removeFromCart(${index})">&times;</div>
+                </div>`;
+        });
+        totalEl.innerText = total.toLocaleString() + 'đ';
+
+        areaSelect.value = cart[0].area;
+        loadUniversities(); 
+    }
+}
+
+function loadUniversities() {
+    const areaKey = document.getElementById('areaSelect').value;
+    const pickupSelect = document.getElementById('pickupSelect');
+    
+    pickupSelect.innerHTML = '<option value="">-- Chọn điểm nhận hàng --</option>';
+    
+    if (areaKey && universityData[areaKey]) {
+        pickupSelect.disabled = false;
+        universityData[areaKey].forEach(uni => {
+            const opt = document.createElement('option');
+            opt.value = uni.name;
+            opt.innerText = uni.name;
+            pickupSelect.appendChild(opt);
+        });
+    } else {
+        pickupSelect.disabled = true;
+        pickupSelect.innerHTML = '<option value="">-- Vui lòng chọn khu vực trước --</option>';
+    }
+}
+
+// --- LOGIC CHỐT ĐƠN ---
+function submitOrder() {
+    const name = document.getElementById('customerName').value;
+    const phone = document.getElementById('customerPhone').value;
+    const area = document.getElementById('areaSelect').value;
+    const pickup = document.getElementById('pickupSelect').value;
+
+    if (cart.length === 0) { alert('Giỏ hàng trống!'); return; }
+    if (!name || !phone) { alert('Vui lòng nhập tên và SĐT!'); return; }
+    
+    if (cart.length > 0 && area !== cart[0].area) {
+        alert(`Lỗi: Món ăn trong giỏ thuộc ${getAreaName(cart[0].area)}. Vui lòng chọn khu vực nhận hàng đúng!`);
+        document.getElementById('areaSelect').value = cart[0].area;
+        loadUniversities();
+        return;
+    }
+
+    if (!pickup) { alert('Vui lòng chọn trường đại học cụ thể!'); return; }
+
+    const overlay = document.getElementById('successOverlay');
+    overlay.style.display = 'flex';
+
+    document.getElementById('trackingOrderId').textContent = '#SV' + Math.floor(Math.random() * 10000);
+    document.getElementById('trackingLocation').textContent = pickup;
+
+    setTimeout(() => {
+        overlay.style.display = 'none';
+        cart = []; updateCartCountUI();
+        document.getElementById('customerName').value = '';
+        document.getElementById('customerPhone').value = '';
+        
+        navigateTo('tracking');
+        startTrackingSimulation();
+    }, 2500);
+}
+
+// --- NAVIGATION & UI HELPERS ---
 function navigateTo(pageId) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.getElementById(pageId).classList.add('active');
     document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-    const link = document.querySelector(`[data-page="${pageId}"]`);
+    const link = document.querySelector(`.nav-link[data-page="${pageId}"]`);
     if(link) link.classList.add('active');
     window.scrollTo(0, 0);
+    if (pageId === 'menu') switchTab('khu1');
 }
 
-document.querySelectorAll('.nav-link').forEach(link => {
-    link.addEventListener('click', (e) => { e.preventDefault(); navigateTo(link.dataset.page); });
-});
-
-document.querySelectorAll('.area-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-        document.querySelectorAll('.area-tab').forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        document.querySelectorAll('.area-content').forEach(c => c.classList.remove('active'));
-        document.getElementById(tab.dataset.area).classList.add('active');
-    });
-});
+function switchTab(areaId) {
+    document.querySelectorAll('.area-content').forEach(c => c.classList.remove('active'));
+    document.getElementById(areaId).classList.add('active');
+    document.querySelectorAll('.area-tab').forEach(t => t.classList.remove('active'));
+    
+    const tabs = document.querySelectorAll('.area-tab');
+    if (areaId === 'khu1') tabs[0].classList.add('active');
+    if (areaId === 'khu2') tabs[1].classList.add('active');
+    if (areaId === 'khu3') tabs[2].classList.add('active');
+    if (areaId === 'khu4') tabs[3].classList.add('active');
+}
 
 function openQualityModal(name, type) {
     const data = qualityDB[name];
@@ -63,90 +209,26 @@ function openQualityModal(name, type) {
     document.getElementById('modalScoreCircle').style.background = data.color;
     document.getElementById('modalGrade').innerText = 'Hạng ' + data.grade;
     document.getElementById('modalGrade').style.color = data.color;
-
     const certsHTML = data.certs.map(c => `<span class="cert-tag"> 📜  ${c}</span>`).join('');
     document.getElementById('modalCerts').innerHTML = certsHTML;
-
     let criteriaHTML = '';
     for (const [key, val] of Object.entries(data.criteria)) {
-        criteriaHTML += `
-        <div class="criteria-item">
-            <div class="criteria-top"><span>${key}</span><span>${val}/100</span></div>
-            <div class="progress-bg"><div class="progress-fill" style="width:${val}%; background:${data.color}"></div></div>
-        </div>`;
+        criteriaHTML += `<div class="criteria-item"><div class="criteria-top"><span>${key}</span><span>${val}/100</span></div><div class="progress-bg"><div class="progress-fill" style="width:${val}%; background:${data.color}"></div></div></div>`;
     }
     document.getElementById('modalCriteriaList').innerHTML = criteriaHTML;
-
-    const histHTML = data.history.map(h => `
-        <div class="history-item" style="border-left-color: ${data.color}">
-            <div><strong>${h.date}</strong></div>
-            <div style="color:${data.color}; font-weight:bold;">${h.score} điểm</div>
-            <div style="color:#666;">${h.who}</div>
-        </div>
-    `).join('');
+    const histHTML = data.history.map(h => `<div class="history-item" style="border-left-color: ${data.color}"><div><strong>${h.date}</strong></div><div style="color:${data.color}; font-weight:bold;">${h.score} điểm</div><div style="color:#666;">${h.who}</div></div>`).join('');
     document.getElementById('modalHistory').innerHTML = histHTML;
     document.getElementById('qualityModal').style.display = 'block';
 }
 
-function closeQualityModal() {
-    document.getElementById('qualityModal').style.display = 'none';
-}
-
-let currentOrder = { meal: '', price: 0, area: '', pickup: '' };
-
-function orderMeal(mealName, price, areaKey) {
-    currentOrder.meal = mealName;
-    currentOrder.price = price;
-    currentOrder.area = areaKey;
-
-    document.getElementById('displayMealName').textContent = mealName;
-    document.getElementById('displayPrice').textContent = price.toLocaleString() + 'đ';
-    document.getElementById('displayAreaName').textContent = areaNames[areaKey];
-
-    const container = document.getElementById('pickupPointsContainer');
-    container.innerHTML = '';
-
-    if (universityData[areaKey]) {
-        universityData[areaKey].forEach(uni => {
-            const div = document.createElement('div');
-            div.className = 'pickup-point';
-            div.innerHTML = ` 🎓  ${uni.name}`;
-            div.onclick = () => {
-                document.querySelectorAll('.pickup-point').forEach(el => el.classList.remove('selected'));
-                div.classList.add('selected');
-                currentOrder.pickup = uni.name;
-            };
-            container.appendChild(div);
-        });
-    }
-    navigateTo('order');
-}
-
-function submitOrder() {
-    const name = document.getElementById('customerName').value;
-    const phone = document.getElementById('customerPhone').value;
-    if (!name || !phone) { alert('Vui lòng nhập tên và số điện thoại!'); return; }
-    if (!currentOrder.pickup) { alert('Vui lòng chọn trường đại học để nhận hàng!'); return; }
-
-    const overlay = document.getElementById('successOverlay');
-    overlay.style.display = 'flex';
-
-    document.getElementById('trackingOrderId').textContent = '#SV' + Math.floor(Math.random() * 10000);
-    document.getElementById('trackingLocation').textContent = currentOrder.pickup;
-
-    setTimeout(() => {
-        overlay.style.display = 'none';
-        navigateTo('tracking');
-        startTrackingSimulation();
-    }, 2500);
-}
+function closeQualityModal() { document.getElementById('qualityModal').style.display = 'none'; }
 
 function startTrackingSimulation() {
     const steps = ['track-step-1', 'track-step-2', 'track-step-3', 'track-step-4'];
     let current = 0;
-    steps.forEach(id => { const el = document.getElementById(id); el.className = 'timeline-step'; });
+    steps.forEach(id => { const el = document.getElementById(id); el.classList.remove('active', 'completed'); });
     document.getElementById(steps[0]).classList.add('active');
-
+    document.getElementById('btnBackHome').style.display = 'none';
     const interval = setInterval(() => {
         current++;
         if (current < steps.length) {
@@ -162,6 +244,4 @@ function startTrackingSimulation() {
     }, 3000);
 }
 
-window.onclick = function(event) {
-    if (event.target == document.getElementById('qualityModal')) closeQualityModal();
-}
+window.onclick = function(event) { if (event.target == document.getElementById('qualityModal')) closeQualityModal(); }

@@ -11,9 +11,11 @@
         <div class="header-content">
             <div class="logo"> 🍱  ComSV</div>
             <nav>
-                <a href="#" class="nav-link active" data-page="home">Trang Chủ</a>
-                <a href="#" class="nav-link" data-page="menu">Menu</a>
-                <a href="#" class="nav-link" data-page="order">Đặt Ăn</a>
+                <a href="#" class="nav-link active" data-page="home" onclick="navigateTo('home')">Trang Chủ</a>
+                <a href="#" class="nav-link" data-page="menu" onclick="navigateTo('menu')">Menu</a>
+                <a href="#" class="nav-link" id="cartNavBtn" onclick="openCartPage()">
+                    🛒 Giỏ Hàng <span id="cartCount">(0)</span>
+                </a>
             </nav>
         </div>
     </header>
@@ -93,11 +95,12 @@
 
     <div id="menu" class="page container">
         <div class="area-tabs">
-            <div class="area-tab active" data-area="khu1">Khu 1: Bách-Kinh-Xây</div>
-            <div class="area-tab" data-area="khu2">Khu 2: Cầu Giấy</div>
-            <div class="area-tab" data-area="khu3">Khu 3: Hà Đông</div>
-            <div class="area-tab" data-area="khu4">Khu 4: Chùa Láng</div>
+            <div class="area-tab active" onclick="switchTab('khu1')">Khu 1: Bách-Kinh-Xây</div>
+            <div class="area-tab" onclick="switchTab('khu2')">Khu 2: Cầu Giấy</div>
+            <div class="area-tab" onclick="switchTab('khu3')">Khu 3: Hà Đông</div>
+            <div class="area-tab" onclick="switchTab('khu4')">Khu 4: Chùa Láng</div>
         </div>
+
         <div id="khu1" class="area-content active">
             <div class="restaurant-card">
                 <div class="restaurant-header">
@@ -111,11 +114,11 @@
                 <div class="menu-grid">
                     <div class="meal-card">
                         <h4> 🍗  Cơm Gà Xối Mỡ</h4><p>35.000đ</p>
-                        <button class="btn-order-meal" onclick="orderMeal('Cơm Gà Xối Mỡ', 35000, 'khu1')">Đặt Ngay</button>
+                        <button class="btn-order-meal" onclick="addToCart('Cơm Gà Xối Mỡ', 35000, 'khu1')">Thêm vào giỏ</button>
                     </div>
                     <div class="meal-card">
                         <h4> 🍖  Cơm Sườn Nướng</h4><p>40.000đ</p>
-                        <button class="btn-order-meal" onclick="orderMeal('Cơm Sườn Nướng', 40000, 'khu1')">Đặt Ngay</button>
+                        <button class="btn-order-meal" onclick="addToCart('Cơm Sườn Nướng', 40000, 'khu1')">Thêm vào giỏ</button>
                     </div>
                 </div>
             </div>
@@ -130,7 +133,7 @@
                     </div>
                 </div>
                 <div class="menu-grid">
-                    <div class="meal-card"><h4> 🍚  Cơm Tấm Sườn</h4><p>45.000đ</p><button class="btn-order-meal" onclick="orderMeal('Cơm Tấm Sườn', 45000, 'khu2')">Đặt Ngay</button></div>
+                    <div class="meal-card"><h4> 🍚  Cơm Tấm Sườn</h4><p>45.000đ</p><button class="btn-order-meal" onclick="addToCart('Cơm Tấm Sườn', 45000, 'khu2')">Thêm vào giỏ</button></div>
                 </div>
             </div>
         </div>
@@ -144,7 +147,7 @@
                     </div>
                 </div>
                 <div class="menu-grid">
-                    <div class="meal-card"><h4> 🍖  Sườn Ram Mặn</h4><p>35.000đ</p><button class="btn-order-meal" onclick="orderMeal('Sườn Ram Mặn', 35000, 'khu3')">Đặt Ngay</button></div>
+                    <div class="meal-card"><h4> 🍖  Sườn Ram Mặn</h4><p>35.000đ</p><button class="btn-order-meal" onclick="addToCart('Sườn Ram Mặn', 35000, 'khu3')">Thêm vào giỏ</button></div>
                 </div>
             </div>
         </div>
@@ -158,7 +161,7 @@
                     </div>
                 </div>
                 <div class="menu-grid">
-                    <div class="meal-card"><h4> 🍤  Tôm Rim Thịt</h4><p>45.000đ</p><button class="btn-order-meal" onclick="orderMeal('Tôm Rim Thịt', 45000, 'khu4')">Đặt Ngay</button></div>
+                    <div class="meal-card"><h4> 🍤  Tôm Rim Thịt</h4><p>45.000đ</p><button class="btn-order-meal" onclick="addToCart('Tôm Rim Thịt', 45000, 'khu4')">Thêm vào giỏ</button></div>
                 </div>
             </div>
         </div>
@@ -166,28 +169,47 @@
 
     <div id="order" class="page container">
         <div class="order-section">
-            <h2 style="color:#27ae60; margin-bottom:1.5rem; text-align:center;"> 📝  Xác Nhận Đơn Hàng</h2>
-            <form id="orderForm">
-                <div class="form-group">
-                    <label>Họ và tên *</label>
-                    <input type="text" id="customerName" placeholder="Nhập tên của bạn">
-                </div>
-                <div class="form-group">
-                    <label>Số điện thoại *</label>
-                    <input type="tel" id="customerPhone" placeholder="09xxxxxxx">
-                </div>
-                <div style="background:#f9f9f9; padding:1rem; border-radius:10px; margin-bottom:1.5rem; border:1px dashed #ccc;">
-                    <p><strong>Món ăn:</strong> <span id="displayMealName" style="color:#27ae60; font-weight:bold;">...</span></p>
-                    <p><strong>Khu vực:</strong> <span id="displayAreaName">...</span></p>
-                    <p><strong>Giá:</strong> <span id="displayPrice" style="color:#d35400; font-weight:bold;">...</span></p>
-                </div>
-                <div class="form-group">
-                    <label> 🏫  Chọn Trường Đại Học (Điểm nhận hàng) *</label>
-                    <div id="pickupPointsContainer">
+            <h2 style="color:#27ae60; margin-bottom:1.5rem; text-align:center;"> 🛒  Giỏ Hàng Của Bạn</h2>
+            
+            <div id="cartListContainer" class="cart-container"></div>
+
+            <div class="cart-total-section">
+                Tổng cộng: <strong id="cartTotal" style="color: #d35400;">0đ</strong>
+            </div>
+
+            <div class="checkout-form">
+                <h3 style="margin-bottom: 1rem; border-top: 1px solid #eee; padding-top: 1rem;">Thông tin nhận hàng</h3>
+                <form id="orderForm">
+                    <div class="form-group">
+                        <label>Họ và tên *</label>
+                        <input type="text" id="customerName" placeholder="Nhập tên của bạn">
                     </div>
-                </div>
-                <button type="button" class="btn-order" onclick="submitOrder()" style="margin-top: 1.5rem;"> ✅  Xác Nhận Đặt Hàng</button>
-            </form>
+                    <div class="form-group">
+                        <label>Số điện thoại *</label>
+                        <input type="tel" id="customerPhone" placeholder="09xxxxxxx">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label> 📍  Chọn Khu Vực *</label>
+                        <select id="areaSelect" class="styled-select" onchange="loadUniversities()">
+                            <option value="">-- Vui lòng chọn khu vực --</option>
+                            <option value="khu1">Khu 1: Bách-Kinh-Xây</option>
+                            <option value="khu2">Khu 2: Cầu Giấy</option>
+                            <option value="khu3">Khu 3: Hà Đông</option>
+                            <option value="khu4">Khu 4: Chùa Láng</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label> 🏫  Chọn Trường (Điểm nhận hàng) *</label>
+                        <select id="pickupSelect" class="styled-select" disabled>
+                            <option value="">-- Chọn khu vực trước --</option>
+                        </select>
+                    </div>
+
+                    <button type="button" class="btn-order" onclick="submitOrder()"> ✅  Chốt Đơn & Thanh Toán</button>
+                </form>
+            </div>
         </div>
     </div>
 
